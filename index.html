@@ -1,1 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF7E05">
+    
+    <meta name="title" content="Multiplicadores de Conhecimento | Celebração">
+    <meta name="description" content="Celebração oficial e Divulgação da Cartilha de Trilhas de Carreiras.">
 
+    <title>Celebração Multiplicadores - Unibrisa</title>
+    
+    <!-- Ícone Atualizado -->
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/icone.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brisa: {
+                            orange: '#FF7E05',
+                            blue: '#2242D4',
+                            dark: '#1A34A8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                        heading: ['Figtree', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'bounce-x': 'bounce-x 1s infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 10px rgba(255, 255, 255, 0.2)' },
+                            '100%': { boxShadow: '0 0 25px rgba(255, 255, 255, 0.6), 0 0 15px rgba(34, 66, 212, 0.8)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FF7E05;
+            color: white;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Fundo atualizado com a imagem fornecida */
+        .bg-fixed-custom {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/Plano%20de%20fundo.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            z-index: -2;
+        }
+
+        /* Overlay misturando a cor principal (Laranja) e secundária (Azul) sobre o plano de fundo */
+        .bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255, 126, 5, 0.4) 0%, rgba(34, 66, 212, 0.6) 100%);
+            z-index: -1;
+        }
+
+        /* Cartões de Vidro Otimizados para Mobile */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Pílula de destaque (Momento Especial) */
+        .special-pill {
+            background: linear-gradient(90deg, #2242D4, #3B5BDE);
+            position: relative;
+            overflow: hidden;
+        }
+        .special-pill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            100% { left: 200%; }
+        }
+
+        /* Animações de Scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Timeline vertical */
+        .timeline-line {
+            position: absolute;
+            left: 1.25rem; /* 20px */
+            top: 0; bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 0;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2242D4; border-radius: 10px; }
+    </style>
+</head>
+<body class="antialiased font-sans relative">
+
+    <!-- Fundo Fixo -->
+    <div class="bg-fixed-custom"></div>
+    <div class="bg-overlay"></div>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center transition-opacity duration-700 opacity-100">
+        <div class="relative w-32 h-32 md:w-40 md:h-40 flex items-center justify-center">
+            <!-- Novo Ícone -->
+            <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/icone.png" alt="Ícone" class="w-full h-full object-contain animate-bounce">
+            <div class="absolute inset-0 rounded-full border-4 border-brisa-orange opacity-0 animate-[ping_1.5s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+        </div>
+        <p class="mt-6 text-brisa-blue font-heading font-bold text-lg animate-pulse tracking-[0.1em] uppercase">Preparando Celebração...</p>
+    </div>
+
+    <!-- Elementos Flutuantes de Fundo -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-40" aria-hidden="true">
+        <i class="fa-solid fa-star absolute top-[10%] left-[5%] text-4xl text-brisa-orange animate-float"></i>
+        <i class="fa-solid fa-graduation-cap absolute top-[20%] right-[10%] text-6xl text-brisa-blue animate-float-delayed"></i>
+        <i class="fa-solid fa-medal absolute bottom-[30%] left-[15%] text-5xl text-yellow-400 animate-pulse-slow"></i>
+        <i class="fa-solid fa-lightbulb absolute bottom-[15%] right-[5%] text-4xl text-brisa-orange animate-float"></i>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="min-h-[85vh] flex flex-col justify-center items-center text-center p-6 relative z-10 pt-12">
+        <div class="reveal active w-full max-w-3xl mx-auto flex flex-col items-center">
+            
+            <!-- Logo Substituída com sua imagem -->
+            <div class="w-72 md:w-80 lg:w-96 mb-8 relative hover:scale-105 transition-transform duration-500">
+                <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/Logo%20multiplicadores.png" alt="Logo Multiplicadores" class="w-full h-auto object-contain drop-shadow-2xl">
+            </div>
+
+            <!-- Informações Básicas -->
+            <div class="flex flex-wrap justify-center gap-3 mb-8">
+                <span class="glass-card px-5 py-2 rounded-full font-bold text-sm flex items-center gap-2 backdrop-blur-md border-brisa-orange/50">
+                    <i class="fa-regular fa-calendar text-brisa-orange text-lg"></i> 24 de março
+                </span>
+                <span class="glass-card px-5 py-2 rounded-full font-bold text-sm flex items-center gap-2 backdrop-blur-md border-brisa-blue/50">
+                    <i class="fa-solid fa-location-dot text-brisa-blue text-lg"></i> Unibrisa
+                </span>
+            </div>
+
+            <!-- Destaque: Momento Especial -->
+            <div class="w-full max-w-md animate-glow rounded-2xl">
+                <div class="special-pill rounded-2xl p-6 text-left shadow-2xl border border-white/20">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-brisa-blue">
+                            <i class="fa-solid fa-book-bookmark text-xl"></i>
+                        </div>
+                        <h2 class="font-extrabold text-sm uppercase tracking-wider text-white/90">Momento Especial</h2>
+                    </div>
+                    <p class="font-bold text-xl leading-tight">Divulgação da Cartilha de Trilhas de Carreiras</p>
+                </div>
+            </div>
+            
+            <div class="mt-12 animate-bounce">
+                <a href="#programacao" class="text-white/70 hover:text-white transition-colors">
+                    <p class="text-xs uppercase font-bold tracking-widest mb-2">Deslize para ver a agenda</p>
+                    <i class="fa-solid fa-chevron-down text-2xl"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Programação Principal -->
+    <main id="programacao" class="container mx-auto px-4 py-12 md:py-20 max-w-3xl relative z-10">
+        
+        <div class="text-center mb-12 reveal">
+            <h2 class="font-heading font-extrabold text-3xl md:text-5xl text-white mb-3">
+                Programação Oficial
+            </h2>
+            <div class="w-20 h-1 bg-white mx-auto rounded-full opacity-50"></div>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="relative py-4">
+            <!-- Linha guia da timeline -->
+            <div class="timeline-line hidden sm:block sm:left-1/2 sm:-ml-[1px]"></div>
+            <div class="timeline-line sm:hidden"></div>
+
+            <!-- ITEM 1: Abertura -->
+            <div class="relative mb-10 sm:mb-16 reveal group">
+                <div class="flex flex-col sm:flex-row items-center justify-between">
+                    <!-- Dot Mobile -->
+                    <div class="absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-blue border-2 border-white z-10 sm:hidden"></div>
+                    
+                    <!-- Espaço Esquerdo Desktop -->
+                    <div class="hidden sm:block sm:w-[45%] text-right pr-8 relative">
+                        <!-- Dot Desktop -->
+                        <div class="absolute right-[-2.3rem] top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brisa-blue border-[3px] border-white z-10 shadow-[0_0_10px_rgba(255,255,255,0.8)] group-hover:scale-125 transition-transform"></div>
+                        <span class="inline-block bg-white text-brisa-blue font-extrabold text-sm px-4 py-1.5 rounded-full shadow-lg">10h00 - 10h15</span>
+                    </div>
+
+                    <!-- Card -->
+                    <div class="w-full pl-10 sm:pl-0 sm:w-[45%]">
+                        <span class="sm:hidden inline-block bg-white text-brisa-blue font-extrabold text-xs px-3 py-1 rounded-full shadow-lg mb-3">10h00 - 10h15</span>
+                        <div class="glass-card p-5 border-l-4 border-l-brisa-blue hover:bg-white/20 transition-all">
+                            <h3 class="font-bold text-2xl mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-door-open text-brisa-orange"></i> Abertura
+                            </h3>
+                            
+                            <ul class="text-sm space-y-2 mb-5 opacity-90 font-medium">
+                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Como chegamos até aqui</li>
+                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Conexão com o MVV</li>
+                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Jornada ao longo dos 7 meses</li>
+                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Visão do ecossistema</li>
+                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Direcionadores estratégicos</li>
+                            </ul>
+
+                            <div class="pt-4 border-t border-white/20 flex flex-col gap-3">
+                                <div class="flex items-center gap-3 bg-black/20 p-2 rounded-lg">
+                                    <span class="text-[10px] uppercase font-bold text-white/70 w-16">Facilitação</span>
+                                    <img src="https://ui-avatars.com/api/?name=Victor&background=2242D4&color=fff&rounded=true" alt="Victor" class="w-7 h-7 rounded-full">
+                                    <span class="text-sm font-bold">Victor</span>
+                                </div>
+                                <div class="flex items-center gap-3 bg-white/10 p-2 rounded-lg">
+                                    <span class="text-[10px] uppercase font-bold text-white/70 w-16">Convidada</span>
+                                    <img src="https://ui-avatars.com/api/?name=Simone+Caixeta&background=FF7E05&color=fff&rounded=true" alt="Simone Caixeta" class="w-7 h-7 rounded-full">
+                                    <span class="text-sm font-bold">Simone Caixeta</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ITEM 2: Painel 01 -->
+            <div class="relative mb-10 sm:mb-16 reveal group">
+                <div class="flex flex-col sm:flex-row-reverse items-center justify-between">
+                    <!-- Dot Mobile -->
+                    <div class="absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-blue border-2 border-white z-10 sm:hidden"></div>
+                    
+                    <!-- Espaço Direito Desktop -->
+                    <div class="hidden sm:block sm:w-[45%] text-left pl-8 relative">
+                        <!-- Dot Desktop -->
+                        <div class="absolute left-[-2.3rem] top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brisa-blue border-[3px] border-white z-10 shadow-[0_0_10px_rgba(255,255,255,0.8)] group-hover:scale-125 transition-transform"></div>
+                        <span class="inline-block bg-white text-brisa-blue font-extrabold text-sm px-4 py-1.5 rounded-full shadow-lg">10h15 - 11h15</span>
+                    </div>
+
+                    <!-- Card -->
+                    <div class="w-full pl-10 sm:pl-0 sm:w-[45%] sm:text-right">
+                        <span class="sm:hidden inline-block bg-white text-brisa-blue font-extrabold text-xs px-3 py-1 rounded-full shadow-lg mb-3">10h15 - 11h15</span>
+                        <div class="glass-card p-5 border-l-4 sm:border-l-0 sm:border-r-4 border-brisa-blue hover:bg-white/20 transition-all">
+                            <h4 class="text-xs uppercase font-extrabold tracking-wider text-brisa-blue bg-white inline-block px-2 py-1 rounded mb-2">Painel 01</h4>
+                            <h3 class="font-bold text-xl mb-4 leading-tight flex items-start sm:justify-end gap-2 text-white">
+                                <i class="fa-solid fa-chess-knight text-brisa-orange mt-1"></i> Design de Aprendizagem: Construindo Conhecimento com Estratégia
+                            </h3>
+                            
+                            <ul class="text-sm space-y-2 mb-5 opacity-90 font-medium sm:flex sm:flex-col sm:items-end">
+                                <li>Aprendizagem estratégica na prática <i class="hidden sm:inline-block fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] ml-2"></i></li>
+                                <li>O papel do design no conhecimento <i class="hidden sm:inline-block fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] ml-2"></i></li>
+                                <li>Conexão entre desenvolvimento e resultados <i class="hidden sm:inline-block fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] ml-2"></i></li>
+                            </ul>
+
+                            <div class="pt-4 border-t border-white/20 flex flex-col sm:items-end gap-3">
+                                <div class="flex items-center sm:flex-row-reverse gap-3 bg-black/20 p-2 rounded-lg">
+                                    <span class="text-[10px] uppercase font-bold text-white/70">Facilitação</span>
+                                    <img src="https://ui-avatars.com/api/?name=Victor&background=2242D4&color=fff&rounded=true" alt="Victor" class="w-7 h-7 rounded-full">
+                                    <span class="text-sm font-bold">Victor</span>
+                                </div>
+                                <div class="flex items-center sm:flex-row-reverse gap-3 bg-white/10 p-2 rounded-lg">
+                                    <span class="text-[10px] uppercase font-bold text-white/70">Convidada</span>
+                                    <img src="https://ui-avatars.com/api/?name=Flora+Alves&background=FF7E05&color=fff&rounded=true" alt="Flora Alves" class="w-7 h-7 rounded-full">
+                                    <span class="text-sm font-bold">Flora Alves</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ITEM 3: Celebração -->
+            <div class="relative mb-10 sm:mb-16 reveal group">
+                <div class="flex flex-col sm:flex-row items-center justify-between">
+                    <!-- Dot Mobile -->
+                    <div class="absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-blue border-2 border-white z-10 sm:hidden"></div>
+                    
+                    <!-- Espaço Esquerdo Desktop -->
+                    <div class="hidden sm:block sm:w-[45%] text-right pr-8 relative">
+                        <!-- Dot Desktop -->
+                        <div class="absolute right-[-2.3rem] top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brisa-blue border-[3px] border-white z-10 shadow-[0_0_10px_rgba(255,255,255,0.8)] group-hover:scale-125 transition-transform"></div>
+                        <span class="inline-block bg-white text-brisa-blue font-extrabold text-sm px-4 py-1.5 rounded-full shadow-lg">11h15 - 12h15</span>
+                    </div>
+
+                    <!-- Card -->
+                    <div class="w-full pl-10 sm:pl-0 sm:w-[45%]">
+                        <span class="sm:hidden inline-block bg-white text-brisa-blue font-extrabold text-xs px-3 py-1 rounded-full shadow-lg mb-3">11h15 - 12h15</span>
+                        <div class="glass-card p-5 border-l-4 border-l-brisa-blue hover:bg-white/20 transition-all bg-gradient-to-br from-white/20 to-brisa-blue/20">
+                            <h3 class="font-bold text-2xl mb-4 flex items-center gap-2">
+                                Celebração com Gestores <i class="fa-solid fa-champagne-glasses text-yellow-300"></i>
+                            </h3>
+                            
+                            <ul class="text-sm space-y-2 mb-6 opacity-90 font-medium">
+                                <li><i class="fa-solid fa-star text-yellow-300 mr-2 text-xs"></i> Reconhecimento da jornada</li>
+                                <li><i class="fa-solid fa-star text-yellow-300 mr-2 text-xs"></i> Destaques e conquistas</li>
+                                <li><i class="fa-solid fa-star text-yellow-300 mr-2 text-xs"></i> Pontos focais por frente</li>
+                                <li><i class="fa-solid fa-star text-yellow-300 mr-2 text-xs"></i> Resultados e impactos</li>
+                            </ul>
+
+                            <div class="pt-4 border-t border-white/20">
+                                <p class="text-[10px] uppercase font-bold text-white/80 mb-2">Facilitação: <strong class="text-white">Victor</strong></p>
+                                <p class="text-[10px] uppercase font-bold text-white/80 mb-3">Convidados Especiais</p>
+                                
+                                <!-- Avatars Group Múltiplos -->
+                                <div class="flex flex-wrap gap-2">
+                                    <div class="flex items-center gap-1.5 bg-black/30 pr-3 p-1 rounded-full border border-white/10">
+                                        <img src="https://ui-avatars.com/api/?name=Lucas+Lima&background=2242D4&color=fff&rounded=true" class="w-6 h-6 rounded-full">
+                                        <span class="text-xs font-semibold">Lucas L.</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 bg-black/30 pr-3 p-1 rounded-full border border-white/10">
+                                        <img src="https://ui-avatars.com/api/?name=Simone+Caixeta&background=2242D4&color=fff&rounded=true" class="w-6 h-6 rounded-full">
+                                        <span class="text-xs font-semibold">Simone C.</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 bg-black/30 pr-3 p-1 rounded-full border border-white/10">
+                                        <img src="https://ui-avatars.com/api/?name=Roberto&background=2242D4&color=fff&rounded=true" class="w-6 h-6 rounded-full">
+                                        <span class="text-xs font-semibold">Roberto</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 bg-black/30 pr-3 p-1 rounded-full border border-white/10">
+                                        <img src="https://ui-avatars.com/api/?name=Jordão&background=2242D4&color=fff&rounded=true" class="w-6 h-6 rounded-full">
+                                        <span class="text-xs font-semibold">Jordão</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 bg-black/30 pr-3 p-1 rounded-full border border-white/10">
+                                        <img src="https://ui-avatars.com/api/?name=Igor+Carolino&background=2242D4&color=fff&rounded=true" class="w-6 h-6 rounded-full">
+                                        <span class="text-xs font-semibold">Igor C.</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 bg-black/30 pr-3 p-1 rounded-full border border-white/10">
+                                        <img src="https://ui-avatars.com/api/?name=Daiane+Borges&background=2242D4&color=fff&rounded=true" class="w-6 h-6 rounded-full">
+                                        <span class="text-xs font-semibold">Daiane B.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ITEM 4: Encerramento -->
+            <div class="relative reveal group">
+                <div class="flex flex-col sm:flex-row-reverse items-center justify-between">
+                    <!-- Dot Mobile -->
+                    <div class="absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-orange border-2 border-white z-10 sm:hidden"></div>
+                    
+                    <!-- Espaço Direito Desktop -->
+                    <div class="hidden sm:block sm:w-[45%] text-left pl-8 relative">
+                        <!-- Dot Desktop -->
+                        <div class="absolute left-[-2.3rem] top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brisa-orange border-[3px] border-white z-10 shadow-[0_0_15px_rgba(255,126,5,0.8)] group-hover:scale-125 transition-transform"></div>
+                        <span class="inline-block bg-white text-brisa-orange font-extrabold text-sm px-4 py-1.5 rounded-full shadow-lg">12h15 - 12h30</span>
+                    </div>
+
+                    <!-- Card -->
+                    <div class="w-full pl-10 sm:pl-0 sm:w-[45%] sm:text-right">
+                        <span class="sm:hidden inline-block bg-white text-brisa-orange font-extrabold text-xs px-3 py-1 rounded-full shadow-lg mb-3">12h15 - 12h30</span>
+                        <div class="glass-card p-5 border-l-4 sm:border-l-0 sm:border-r-4 border-brisa-orange hover:bg-white/20 transition-all">
+                            <h3 class="font-bold text-2xl mb-2 flex items-center sm:justify-end gap-2">
+                                <i class="fa-solid fa-flag-checkered text-brisa-orange"></i> Encerramento
+                            </h3>
+                            <p class="text-sm opacity-90 mb-4 font-medium">Agradecimentos finais e próximos passos.</p>
+                            
+                            <div class="pt-4 border-t border-white/20 flex flex-col sm:items-end gap-3">
+                                <div class="flex items-center sm:flex-row-reverse gap-3">
+                                    <span class="text-[10px] uppercase font-bold text-white/70">Facilitação</span>
+                                    <img src="https://ui-avatars.com/api/?name=Victor&background=2242D4&color=fff&rounded=true" alt="Victor" class="w-7 h-7 rounded-full">
+                                    <span class="text-sm font-bold">Victor</span>
+                                </div>
+                                <div class="flex items-center sm:flex-row-reverse gap-3">
+                                    <span class="text-[10px] uppercase font-bold text-white/70">Convidado</span>
+                                    <img src="https://ui-avatars.com/api/?name=Roberto&background=FF7E05&color=fff&rounded=true" alt="Roberto" class="w-7 h-7 rounded-full">
+                                    <span class="text-sm font-bold">Roberto</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black/30 backdrop-blur-lg border-t border-white/10 text-white/80 py-8 text-center relative z-10 mt-12">
+        <div class="container mx-auto px-4 flex flex-col items-center">
+            <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/icone.png" alt="Ícone Unibrisa" class="h-8 w-auto object-contain brightness-0 invert mb-3 opacity-80">
+            <p class="font-bold text-white tracking-wide">Multiplicadores de Conhecimento</p>
+            <p class="text-xs mt-1 opacity-70">Celebração & Ecossistema de Desenvolvimento</p>
+            <p class="text-[10px] mt-4 opacity-50 uppercase tracking-widest">Unibrisa 2026</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Splash Screen Logic
+            const splashScreen = document.getElementById('splash-screen');
+            if (splashScreen) {
+                setTimeout(() => {
+                    splashScreen.style.opacity = '0';
+                    setTimeout(() => splashScreen.remove(), 700);
+                }, 1200); 
+            }
+
+            // Scroll Animation (Intersection Observer)
+            const reveals = document.querySelectorAll('.reveal');
+            const revealOptions = {
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Anima apenas uma vez para performance mobile
+                });
+            }, revealOptions);
+
+            reveals.forEach(reveal => {
+                revealOnScroll.observe(reveal);
+            });
+        });
+    </script>
+</body>
+</html>

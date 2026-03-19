@@ -38,6 +38,9 @@
                         'float-delayed': 'float 6s ease-in-out 3s infinite',
                         'bounce-x': 'bounce-x 1s infinite',
                         'glow': 'glow 2s ease-in-out infinite alternate',
+                        'blob': 'blob 10s infinite',
+                        'loading': 'loading 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        'ping-slow': 'ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite',
                     },
                     keyframes: {
                         float: {
@@ -47,6 +50,17 @@
                         glow: {
                             '0%': { boxShadow: '0 0 10px rgba(255, 126, 5, 0.2)' },
                             '100%': { boxShadow: '0 0 25px rgba(255, 126, 5, 0.6), 0 0 15px rgba(34, 66, 212, 0.8)' }
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        loading: {
+                            '0%': { width: '0%' },
+                            '40%': { width: '60%' },
+                            '100%': { width: '100%' }
                         }
                     }
                 }
@@ -56,10 +70,10 @@
 
     <style>
         body {
-            /* Cor do texto alterada de branco para #FF7E05 */
             color: #FF7E05; 
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
+            background-color: #0f0f0f; /* Cor base escura caso a imagem demore */
         }
 
         /* Fundo atualizado com a imagem fornecida */
@@ -70,125 +84,177 @@
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+            z-index: -3;
+        }
+
+        /* Ambient Orbs para dar profundidade e movimento ao fundo */
+        .ambient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            mix-blend-mode: screen;
             z-index: -2;
+            opacity: 0.4;
         }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
 
-        /* Overlay suavizado/removido para exibir o plano de fundo real */
-        .bg-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            z-index: -1;
-        }
-
-        /* Cartões de Vidro Otimizados para Mobile */
+        /* Cartões de Vidro Premium (Escurecidos para super contraste) */
         .glass-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.7) 0%, rgba(5, 5, 5, 0.85) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 126, 5, 0.15);
+            border-top: 1px solid rgba(255, 126, 5, 0.3);
+            border-left: 1px solid rgba(255, 126, 5, 0.2);
             border-radius: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        .glass-card:active {
-            transform: scale(0.98);
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 126, 5, 0.15);
+            border-color: rgba(255, 126, 5, 0.5);
         }
 
-        /* Pílula de destaque (Momento Especial) */
+        /* Pílula de destaque (Momento Especial) - Efeito Shimmer aprimorado */
         .special-pill {
-            background: linear-gradient(90deg, #2242D4, #3B5BDE);
+            background: linear-gradient(90deg, #1A34A8, #2242D4);
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .special-pill::after {
             content: '';
             position: absolute;
             top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            animation: shine 3s infinite;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @keyframes shine {
             100% { left: 200%; }
         }
 
-        /* Animações de Scroll */
+        /* Animações de Scroll (Reveal) */
         .reveal {
             opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.7s cubic-bezier(0.5, 0, 0, 1);
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Timeline vertical */
+        /* Animações em Cascata (Staggering) para itens internos */
+        .stagger-item {
+            opacity: 0;
+            transform: translateX(-15px);
+        }
+        .reveal.active .stagger-item {
+            animation: slideRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideRight {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        .delay-6 { animation-delay: 0.6s; }
+
+        /* Timeline vertical e pontos com aura */
         .timeline-line {
             position: absolute;
             left: 1.25rem; /* 20px */
             top: 0; bottom: 0;
             width: 2px;
-            background: rgba(255, 126, 5, 0.3);
+            background: linear-gradient(to bottom, transparent, rgba(255, 126, 5, 0.4), transparent);
             z-index: 0;
         }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #FF7E05; border-radius: 10px; }
+        .timeline-dot-aura::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background-color: inherit;
+            opacity: 0.4;
+            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f0f0f; }
+        ::-webkit-scrollbar-thumb { background: #FF7E05; border-radius: 10px; border: 2px solid #0f0f0f; }
+        ::-webkit-scrollbar-thumb:hover { background: #e06c00; }
     </style>
 </head>
 <body class="antialiased font-sans relative">
 
-    <!-- Fundo Fixo -->
+    <!-- Fundo Fixo com Imagem -->
     <div class="bg-fixed-custom"></div>
-    <div class="bg-overlay"></div>
-
-    <!-- Splash Screen -->
-    <div id="splash-screen" class="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center transition-opacity duration-700 opacity-100">
-        <!-- Ícone do início AUMENTADO -->
-        <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
-            <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/icone.png" alt="Ícone" class="w-full h-full object-contain animate-bounce">
-            <div class="absolute inset-0 rounded-full border-4 border-brisa-orange opacity-0 animate-[ping_1.5s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
-        </div>
-        <p class="mt-6 text-brisa-blue font-heading font-bold text-lg md:text-xl animate-pulse tracking-[0.1em] uppercase">Preparando Celebração...</p>
+    
+    <!-- Luzes Ambientes Flutuantes (Blobs) -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-[-1]" aria-hidden="true">
+        <div class="ambient-blob w-96 h-96 bg-brisa-orange top-[-10%] left-[-10%] animate-blob"></div>
+        <div class="ambient-blob w-96 h-96 bg-brisa-blue top-[30%] right-[-10%] animate-blob animation-delay-2000"></div>
+        <div class="ambient-blob w-[30rem] h-[30rem] bg-purple-600 bottom-[-20%] left-[20%] animate-blob animation-delay-4000 opacity-30"></div>
     </div>
 
-    <!-- Elementos Flutuantes de Fundo -->
-    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-40" aria-hidden="true">
-        <i class="fa-solid fa-star absolute top-[10%] left-[5%] text-4xl text-brisa-orange animate-float"></i>
-        <i class="fa-solid fa-graduation-cap absolute top-[20%] right-[10%] text-6xl text-brisa-blue animate-float-delayed"></i>
-        <i class="fa-solid fa-medal absolute bottom-[30%] left-[15%] text-5xl text-yellow-400 animate-pulse-slow"></i>
-        <i class="fa-solid fa-lightbulb absolute bottom-[15%] right-[5%] text-4xl text-brisa-orange animate-float"></i>
+    <!-- Splash Screen Premium -->
+    <div id="splash-screen" class="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+        <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
+            <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/icone.png" alt="Ícone" class="w-full h-full object-contain animate-bounce">
+            <div class="absolute inset-0 rounded-full border-4 border-brisa-orange opacity-0 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+        </div>
+        <div class="mt-8 flex flex-col items-center">
+            <p class="text-brisa-blue font-heading font-extrabold text-lg md:text-xl tracking-[0.2em] uppercase mb-4">Iniciando Experiência</p>
+            <!-- Barra de progresso animada -->
+            <div class="w-48 md:w-64 h-1.5 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+                <div class="h-full bg-gradient-to-r from-brisa-orange to-[#ff9e3d] w-0 animate-[loading_1.5s_ease-in-out_forwards]"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elementos Flutuantes de Fundo (Ícones) -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-30" aria-hidden="true">
+        <i class="fa-solid fa-star absolute top-[10%] left-[5%] text-4xl text-brisa-orange animate-float drop-shadow-lg"></i>
+        <i class="fa-solid fa-graduation-cap absolute top-[20%] right-[10%] text-6xl text-brisa-blue animate-float-delayed drop-shadow-lg"></i>
+        <i class="fa-solid fa-medal absolute bottom-[30%] left-[15%] text-5xl text-yellow-400 animate-pulse-slow drop-shadow-lg"></i>
+        <i class="fa-solid fa-lightbulb absolute bottom-[15%] right-[5%] text-4xl text-brisa-orange animate-float drop-shadow-lg"></i>
     </div>
 
     <!-- Hero Section -->
-    <header class="min-h-[85vh] flex flex-col justify-center items-center text-center p-6 relative z-10 pt-12">
+    <header class="min-h-[90vh] flex flex-col justify-center items-center text-center p-6 relative z-10 pt-12">
         <div class="reveal active w-full max-w-3xl mx-auto flex flex-col items-center">
             
-            <!-- Logo -->
-            <div class="w-72 md:w-80 lg:w-96 mb-8 relative hover:scale-105 transition-transform duration-500">
-                <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/Logo%20multiplicadores.png" alt="Logo Multiplicadores" class="w-full h-auto object-contain drop-shadow-2xl">
+            <!-- Logo com Efeito Magnético -->
+            <div class="w-72 md:w-80 lg:w-96 mb-10 relative hover:scale-110 transition-transform duration-700 ease-out cursor-default">
+                <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/Logo%20multiplicadores.png" alt="Logo Multiplicadores" class="w-full h-auto object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]">
             </div>
 
-            <!-- Informações Básicas -->
-            <div class="flex flex-wrap justify-center gap-3 mb-8">
-                <span class="glass-card px-5 py-2 rounded-full font-bold text-sm flex items-center gap-2 backdrop-blur-md border-brisa-orange/50 text-brisa-orange">
+            <!-- Informações Básicas com Hover dinâmico -->
+            <div class="flex flex-wrap justify-center gap-4 mb-10">
+                <span class="glass-card px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 text-brisa-orange hover:bg-brisa-orange/10 cursor-default">
                     <i class="fa-regular fa-calendar text-brisa-orange text-lg"></i> 24 de março
                 </span>
-                <span class="glass-card px-5 py-2 rounded-full font-bold text-sm flex items-center gap-2 backdrop-blur-md border-brisa-blue/50 text-brisa-orange">
+                <span class="glass-card px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 text-brisa-orange hover:bg-brisa-blue/10 cursor-default">
                     <i class="fa-solid fa-location-dot text-brisa-blue text-lg"></i> Unibrisa
+                </span>
+                <span class="glass-card px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 text-brisa-orange hover:bg-brisa-orange/10 cursor-default">
+                    <i class="fa-regular fa-clock text-brisa-orange text-lg"></i> 10:00 às 12:30
                 </span>
             </div>
 
-            <!-- Destaque: Momento Especial -->
-            <div class="w-full max-w-md animate-glow rounded-2xl">
-                <div class="special-pill rounded-2xl p-6 text-left shadow-2xl border border-white/20">
+            <!-- Destaque: Momento Especial Premium (Atualizado para MOMENTO ÚNICO) -->
+            <div class="w-full max-w-md animate-glow rounded-2xl group cursor-default">
+                <div class="special-pill rounded-2xl p-7 text-left shadow-2xl transition-transform duration-500 group-hover:scale-[1.03]">
                     <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-brisa-blue">
-                            <i class="fa-solid fa-award text-xl"></i>
+                        <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-brisa-blue shadow-lg group-hover:rotate-12 transition-transform duration-300">
+                            <i class="fa-solid fa-award text-2xl"></i>
                         </div>
                         <h2 class="font-extrabold text-sm uppercase tracking-wider text-white">Momento Único</h2>
                     </div>
@@ -202,23 +268,25 @@
                 </div>
             </div>
             
-            <div class="mt-12 animate-bounce">
-                <a href="#programacao" class="text-brisa-orange/70 hover:text-brisa-orange transition-colors">
-                    <p class="text-xs uppercase font-bold tracking-widest mb-2">Deslize para ver a agenda</p>
-                    <i class="fa-solid fa-chevron-down text-2xl"></i>
+            <div class="mt-16 animate-bounce">
+                <a href="#programacao" class="text-brisa-orange/80 hover:text-brisa-orange transition-colors flex flex-col items-center group">
+                    <p class="text-xs uppercase font-bold tracking-[0.2em] mb-3 group-hover:text-white transition-colors">Deslize para iniciar</p>
+                    <div class="w-10 h-10 rounded-full glass-card flex items-center justify-center group-hover:bg-brisa-orange group-hover:text-white transition-all">
+                        <i class="fa-solid fa-chevron-down text-xl"></i>
+                    </div>
                 </a>
             </div>
         </div>
     </header>
 
     <!-- Programação Principal -->
-    <main id="programacao" class="container mx-auto px-4 py-12 md:py-20 max-w-3xl relative z-10">
+    <main id="programacao" class="container mx-auto px-4 py-16 md:py-24 max-w-3xl relative z-10">
         
-        <div class="text-center mb-12 reveal">
-            <h2 class="font-heading font-extrabold text-3xl md:text-5xl text-brisa-orange mb-3">
-                Programação Oficial
+        <div class="text-center mb-16 reveal">
+            <h2 class="font-heading font-extrabold text-4xl md:text-5xl text-brisa-orange mb-4 drop-shadow-lg">
+                Agenda Oficial
             </h2>
-            <div class="w-20 h-1 bg-brisa-orange mx-auto rounded-full opacity-50"></div>
+            <div class="w-24 h-1.5 bg-brisa-orange mx-auto rounded-full opacity-80 shadow-[0_0_10px_rgba(255,126,5,0.6)]"></div>
         </div>
 
         <!-- TIMELINE -->
@@ -228,44 +296,52 @@
             <div class="timeline-line sm:hidden"></div>
 
             <!-- ITEM 1: Abertura -->
-            <div class="relative mb-10 sm:mb-16 reveal group">
+            <div class="relative mb-12 sm:mb-20 reveal group">
                 <div class="flex flex-col sm:flex-row items-center justify-between">
                     <!-- Dot Mobile -->
-                    <div class="absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-blue border-2 border-white z-10 sm:hidden"></div>
+                    <div class="timeline-dot-aura absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-blue border-2 border-[#0f0f0f] z-10 sm:hidden"></div>
                     
                     <!-- Espaço Esquerdo Desktop -->
-                    <div class="hidden sm:block sm:w-[45%] text-right pr-8 relative">
+                    <div class="hidden sm:block sm:w-[45%] text-right pr-10 relative">
                         <!-- Dot Desktop -->
-                        <div class="absolute right-[-2.3rem] top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brisa-blue border-[3px] border-white z-10 shadow-[0_0_10px_rgba(255,126,5,0.8)] group-hover:scale-125 transition-transform"></div>
-                        <span class="inline-block bg-white text-brisa-blue font-extrabold text-sm px-4 py-1.5 rounded-full shadow-lg">10h00 - 10h15</span>
+                        <div class="timeline-dot-aura absolute right-[-2.3rem] top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-brisa-blue border-[4px] border-[#0f0f0f] z-10 shadow-[0_0_15px_rgba(34,66,212,0.8)] group-hover:scale-125 transition-transform duration-300"></div>
+                        <span class="inline-block glass-card border-none px-5 py-2 font-extrabold text-sm shadow-xl text-brisa-orange">10h00 - 10h15</span>
                     </div>
 
                     <!-- Card -->
                     <div class="w-full pl-10 sm:pl-0 sm:w-[45%]">
-                        <span class="sm:hidden inline-block bg-white text-brisa-blue font-extrabold text-xs px-3 py-1 rounded-full shadow-lg mb-3">10h00 - 10h15</span>
-                        <div class="glass-card p-5 border-l-4 border-l-brisa-blue hover:bg-white/20 transition-all">
-                            <h3 class="font-bold text-2xl mb-4 flex items-center gap-2">
-                                <i class="fa-solid fa-door-open text-brisa-orange"></i> Abertura
+                        <span class="sm:hidden inline-block glass-card border-none px-4 py-1.5 font-extrabold text-xs shadow-xl text-brisa-orange mb-4">10h00 - 10h15</span>
+                        <div class="glass-card p-6 border-l-4 border-l-brisa-blue">
+                            <h3 class="font-bold text-2xl mb-5 flex items-center gap-3 text-white">
+                                <div class="w-10 h-10 rounded-full bg-brisa-blue/20 flex items-center justify-center text-brisa-blue group-hover:bg-brisa-blue group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-door-open"></i>
+                                </div>
+                                Abertura
                             </h3>
                             
-                            <ul class="text-sm space-y-2 mb-5 opacity-90 font-medium text-brisa-orange">
-                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Como chegamos até aqui</li>
-                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Conexão com o MVV</li>
-                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Jornada ao longo dos 7 meses</li>
-                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Visão do ecossistema</li>
-                                <li><i class="fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] mr-2"></i>Direcionadores estratégicos</li>
+                            <ul class="text-sm space-y-3 mb-6 font-medium text-brisa-orange/90">
+                                <li class="stagger-item delay-1 flex items-start gap-2"><i class="fa-solid fa-arrow-right text-brisa-blue mt-1 text-xs"></i> Como chegamos até aqui</li>
+                                <li class="stagger-item delay-2 flex items-start gap-2"><i class="fa-solid fa-arrow-right text-brisa-blue mt-1 text-xs"></i> Conexão com o MVV</li>
+                                <li class="stagger-item delay-3 flex items-start gap-2"><i class="fa-solid fa-arrow-right text-brisa-blue mt-1 text-xs"></i> Jornada ao longo dos 7 meses</li>
+                                <li class="stagger-item delay-4 flex items-start gap-2"><i class="fa-solid fa-arrow-right text-brisa-blue mt-1 text-xs"></i> Visão do ecossistema</li>
+                                <li class="stagger-item delay-5 flex items-start gap-2"><i class="fa-solid fa-arrow-right text-brisa-blue mt-1 text-xs"></i> Direcionadores estratégicos</li>
                             </ul>
 
-                            <div class="pt-4 border-t border-white/20 flex flex-col gap-3">
-                                <div class="flex items-center gap-3 bg-black/10 p-2 rounded-lg">
-                                    <span class="text-[10px] uppercase font-bold text-brisa-orange/70 w-16">Facilitação</span>
-                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQHejI_Em5LuWw/profile-displayphoto-shrink_800_800/B4DZVryFe.HAAg-/0/1741270047170?e=1775692800&v=beta&t=raBiHnUvurfm8g6283XH3YXKSHrnVAq3TKQYagDSrsg" alt="Victor Morais" class="w-7 h-7 rounded-full object-cover">
-                                    <span class="text-sm font-bold text-brisa-orange">Victor Morais</span>
+                            <div class="pt-5 border-t border-white/10 flex flex-col gap-3">
+                                <div class="stagger-item delay-6 group/avatar flex items-center gap-3 bg-black/40 pr-4 p-1.5 rounded-full border border-white/5 hover:bg-brisa-orange/10 hover:border-brisa-orange/30 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-lg w-fit">
+                                    <span class="text-[10px] uppercase font-bold text-white/50 ml-2 w-16">Facilitação</span>
+                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQHejI_Em5LuWw/profile-displayphoto-shrink_800_800/B4DZVryFe.HAAg-/0/1741270047170?e=1775692800&v=beta&t=raBiHnUvurfm8g6283XH3YXKSHrnVAq3TKQYagDSrsg" alt="Victor Morais" class="w-8 h-8 rounded-full object-cover group-hover/avatar:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/avatar:ring-brisa-orange">
+                                    <span class="text-sm font-bold text-brisa-orange group-hover/avatar:text-white transition-colors">Victor Morais</span>
                                 </div>
-                                <div class="flex items-center gap-3 bg-white/10 p-2 rounded-lg">
-                                    <span class="text-[10px] uppercase font-bold text-brisa-orange/70 w-16">Convidada</span>
-                                    <img src="https://raw.githubusercontent.com/gilneilaurindo/Positiva-o-Unibrisa/main/Simone%20Caixeta.jpg" alt="Simone Caixeta" class="w-7 h-7 rounded-full object-cover">
-                                    <span class="text-sm font-bold text-brisa-orange">Simone Caixeta</span>
+                                <div class="stagger-item delay-6 group/avatar flex items-center gap-3 bg-white/5 pr-4 p-1.5 rounded-full border border-white/5 hover:bg-brisa-orange/10 hover:border-brisa-orange/30 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-lg w-fit">
+                                    <span class="text-[10px] uppercase font-bold text-white/50 ml-2 w-16">Convidado</span>
+                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQHOhwQLnP8E0g/profile-displayphoto-shrink_800_800/B4DZPZ7EKnHgAo-/0/1734527960149?e=1775692800&v=beta&t=t4efT-ps7O6uLirWBS5YWleuU_FSKdpjPRB0toL9zZM" alt="Jefferson Aguiar" class="w-8 h-8 rounded-full object-cover group-hover/avatar:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/avatar:ring-brisa-orange">
+                                    <span class="text-sm font-bold text-brisa-orange group-hover/avatar:text-white transition-colors">Jefferson Aguiar</span>
+                                </div>
+                                <div class="stagger-item delay-6 group/avatar flex items-center gap-3 bg-white/5 pr-4 p-1.5 rounded-full border border-white/5 hover:bg-brisa-orange/10 hover:border-brisa-orange/30 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-lg w-fit">
+                                    <span class="text-[10px] uppercase font-bold text-white/50 ml-2 w-16">Convidado</span>
+                                    <img src="https://media.licdn.com/dms/image/v2/D4E03AQE9Omahw-M9sQ/profile-displayphoto-crop_800_800/B4EZzIhFpsIQAI-/0/1772890643470?e=1775692800&v=beta&t=jW9Pxtt-qD1xlvPoM18bjbQfte5w_2MVADS7RAT5BTA" alt="Henrique Morais" class="w-8 h-8 rounded-full object-cover group-hover/avatar:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/avatar:ring-brisa-orange">
+                                    <span class="text-sm font-bold text-brisa-orange group-hover/avatar:text-white transition-colors">Henrique Morais</span>
                                 </div>
                             </div>
                         </div>
@@ -274,43 +350,46 @@
             </div>
 
             <!-- ITEM 2: Painel 01 -->
-            <div class="relative mb-10 sm:mb-16 reveal group">
+            <div class="relative mb-12 sm:mb-20 reveal group">
                 <div class="flex flex-col sm:flex-row-reverse items-center justify-between">
                     <!-- Dot Mobile -->
-                    <div class="absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-blue border-2 border-white z-10 sm:hidden"></div>
+                    <div class="timeline-dot-aura absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-blue border-2 border-[#0f0f0f] z-10 sm:hidden"></div>
                     
                     <!-- Espaço Direito Desktop -->
-                    <div class="hidden sm:block sm:w-[45%] text-left pl-8 relative">
+                    <div class="hidden sm:block sm:w-[45%] text-left pl-10 relative">
                         <!-- Dot Desktop -->
-                        <div class="absolute left-[-2.3rem] top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brisa-blue border-[3px] border-white z-10 shadow-[0_0_10px_rgba(255,126,5,0.8)] group-hover:scale-125 transition-transform"></div>
-                        <span class="inline-block bg-white text-brisa-blue font-extrabold text-sm px-4 py-1.5 rounded-full shadow-lg">10h15 - 11h15</span>
+                        <div class="timeline-dot-aura absolute left-[-2.3rem] top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-brisa-blue border-[4px] border-[#0f0f0f] z-10 shadow-[0_0_15px_rgba(34,66,212,0.8)] group-hover:scale-125 transition-transform duration-300"></div>
+                        <span class="inline-block glass-card border-none px-5 py-2 font-extrabold text-sm shadow-xl text-brisa-orange">10h15 - 11h15</span>
                     </div>
 
                     <!-- Card -->
                     <div class="w-full pl-10 sm:pl-0 sm:w-[45%] sm:text-right">
-                        <span class="sm:hidden inline-block bg-white text-brisa-blue font-extrabold text-xs px-3 py-1 rounded-full shadow-lg mb-3">10h15 - 11h15</span>
-                        <div class="glass-card p-5 border-l-4 sm:border-l-0 sm:border-r-4 border-brisa-blue hover:bg-white/20 transition-all">
-                            <h4 class="text-xs uppercase font-extrabold tracking-wider text-brisa-blue bg-white inline-block px-2 py-1 rounded mb-2">Painel 01</h4>
-                            <h3 class="font-bold text-xl mb-4 leading-tight flex items-start sm:justify-end gap-2 text-brisa-orange">
-                                <i class="fa-solid fa-chess-knight text-brisa-orange mt-1"></i> Design de Aprendizagem: Construindo Conhecimento com Estratégia
+                        <span class="sm:hidden inline-block glass-card border-none px-4 py-1.5 font-extrabold text-xs shadow-xl text-brisa-orange mb-4">10h15 - 11h15</span>
+                        <div class="glass-card p-6 border-l-4 sm:border-l-0 sm:border-r-4 border-brisa-blue">
+                            <h4 class="text-[10px] uppercase font-extrabold tracking-widest text-black bg-brisa-orange inline-block px-3 py-1 rounded-full mb-3 shadow-[0_0_10px_rgba(255,126,5,0.5)]">Painel 01</h4>
+                            <h3 class="font-bold text-xl mb-5 leading-tight flex flex-col sm:items-end gap-2 text-white">
+                                <div class="w-10 h-10 rounded-full bg-brisa-orange/20 flex items-center justify-center text-brisa-orange mb-1 group-hover:bg-brisa-orange group-hover:text-black transition-colors">
+                                    <i class="fa-solid fa-chess-knight"></i>
+                                </div>
+                                Design de Aprendizagem: Construindo Conhecimento com Estratégia
                             </h3>
                             
-                            <ul class="text-sm space-y-2 mb-5 opacity-90 font-medium sm:flex sm:flex-col sm:items-end text-brisa-orange">
-                                <li>Aprendizagem estratégica na prática <i class="hidden sm:inline-block fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] ml-2"></i></li>
-                                <li>O papel do design no conhecimento <i class="hidden sm:inline-block fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] ml-2"></i></li>
-                                <li>Conexão entre desenvolvimento e resultados <i class="hidden sm:inline-block fa-solid fa-check text-brisa-blue bg-white rounded-full p-1 text-[8px] ml-2"></i></li>
+                            <ul class="text-sm space-y-3 mb-6 font-medium sm:flex sm:flex-col sm:items-end text-brisa-orange/90">
+                                <li class="stagger-item delay-1 flex items-center gap-2 justify-end">Aprendizagem estratégica na prática <i class="fa-solid fa-arrow-left text-brisa-blue text-xs hidden sm:block"></i></li>
+                                <li class="stagger-item delay-2 flex items-center gap-2 justify-end">O papel do design no conhecimento <i class="fa-solid fa-arrow-left text-brisa-blue text-xs hidden sm:block"></i></li>
+                                <li class="stagger-item delay-3 flex items-center gap-2 justify-end">Conexão entre desenvolvimento e resultados <i class="fa-solid fa-arrow-left text-brisa-blue text-xs hidden sm:block"></i></li>
                             </ul>
 
-                            <div class="pt-4 border-t border-white/20 flex flex-col sm:items-end gap-3">
-                                <div class="flex items-center sm:flex-row-reverse gap-3 bg-black/10 p-2 rounded-lg">
-                                    <span class="text-[10px] uppercase font-bold text-brisa-orange/70">Facilitação</span>
-                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQHejI_Em5LuWw/profile-displayphoto-shrink_800_800/B4DZVryFe.HAAg-/0/1741270047170?e=1775692800&v=beta&t=raBiHnUvurfm8g6283XH3YXKSHrnVAq3TKQYagDSrsg" alt="Victor Morais" class="w-7 h-7 rounded-full object-cover">
-                                    <span class="text-sm font-bold text-brisa-orange">Victor Morais</span>
+                            <div class="pt-5 border-t border-white/10 flex flex-col sm:items-end gap-3">
+                                <div class="stagger-item delay-4 group/avatar flex items-center sm:flex-row-reverse gap-3 bg-black/40 pl-4 p-1.5 rounded-full border border-white/5 hover:bg-brisa-orange/10 hover:border-brisa-orange/30 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-lg w-fit">
+                                    <span class="text-[10px] uppercase font-bold text-white/50 mr-2">Facilitação</span>
+                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQHejI_Em5LuWw/profile-displayphoto-shrink_800_800/B4DZVryFe.HAAg-/0/1741270047170?e=1775692800&v=beta&t=raBiHnUvurfm8g6283XH3YXKSHrnVAq3TKQYagDSrsg" alt="Victor Morais" class="w-8 h-8 rounded-full object-cover group-hover/avatar:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/avatar:ring-brisa-orange">
+                                    <span class="text-sm font-bold text-brisa-orange group-hover/avatar:text-white transition-colors">Victor Morais</span>
                                 </div>
-                                <div class="flex items-center sm:flex-row-reverse gap-3 bg-white/10 p-2 rounded-lg">
-                                    <span class="text-[10px] uppercase font-bold text-brisa-orange/70">Convidada</span>
-                                    <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/Flora%20Alves.jpeg" alt="Flora Alves" class="w-7 h-7 rounded-full object-cover">
-                                    <span class="text-sm font-bold text-brisa-orange">Flora Alves</span>
+                                <div class="stagger-item delay-5 group/avatar flex items-center sm:flex-row-reverse gap-3 bg-white/5 pl-4 p-1.5 rounded-full border border-white/5 hover:bg-brisa-orange/10 hover:border-brisa-orange/30 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-lg w-fit">
+                                    <span class="text-[10px] uppercase font-bold text-white/50 mr-2">Convidada</span>
+                                    <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/Flora%20Alves.jpeg" alt="Flora Alves" class="w-8 h-8 rounded-full object-cover group-hover/avatar:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/avatar:ring-brisa-orange">
+                                    <span class="text-sm font-bold text-brisa-orange group-hover/avatar:text-white transition-colors">Flora Alves</span>
                                 </div>
                             </div>
                         </div>
@@ -319,62 +398,74 @@
             </div>
 
             <!-- ITEM 3: Celebração -->
-            <div class="relative mb-10 sm:mb-16 reveal group">
+            <div class="relative mb-12 sm:mb-20 reveal group">
                 <div class="flex flex-col sm:flex-row items-center justify-between">
                     <!-- Dot Mobile -->
-                    <div class="absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-blue border-2 border-white z-10 sm:hidden"></div>
+                    <div class="timeline-dot-aura absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-blue border-2 border-[#0f0f0f] z-10 sm:hidden"></div>
                     
                     <!-- Espaço Esquerdo Desktop -->
-                    <div class="hidden sm:block sm:w-[45%] text-right pr-8 relative">
+                    <div class="hidden sm:block sm:w-[45%] text-right pr-10 relative">
                         <!-- Dot Desktop -->
-                        <div class="absolute right-[-2.3rem] top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brisa-blue border-[3px] border-white z-10 shadow-[0_0_10px_rgba(255,126,5,0.8)] group-hover:scale-125 transition-transform"></div>
-                        <span class="inline-block bg-white text-brisa-blue font-extrabold text-sm px-4 py-1.5 rounded-full shadow-lg">11h15 - 12h15</span>
+                        <div class="timeline-dot-aura absolute right-[-2.3rem] top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-brisa-blue border-[4px] border-[#0f0f0f] z-10 shadow-[0_0_15px_rgba(34,66,212,0.8)] group-hover:scale-125 transition-transform duration-300"></div>
+                        <span class="inline-block glass-card border-none px-5 py-2 font-extrabold text-sm shadow-xl text-brisa-orange">11h15 - 12h15</span>
                     </div>
 
-                    <!-- Card -->
+                    <!-- Card Especial de Celebração -->
                     <div class="w-full pl-10 sm:pl-0 sm:w-[45%]">
-                        <span class="sm:hidden inline-block bg-white text-brisa-blue font-extrabold text-xs px-3 py-1 rounded-full shadow-lg mb-3">11h15 - 12h15</span>
-                        <div class="glass-card p-5 border-l-4 border-l-brisa-blue hover:bg-white/20 transition-all bg-gradient-to-br from-white/10 to-brisa-blue/10">
-                            <h3 class="font-bold text-2xl mb-4 flex items-center gap-2 text-brisa-orange">
-                                Celebração com Gestores <i class="fa-solid fa-champagne-glasses text-yellow-300"></i>
+                        <span class="sm:hidden inline-block glass-card border-none px-4 py-1.5 font-extrabold text-xs shadow-xl text-brisa-orange mb-4">11h15 - 12h15</span>
+                        <div class="glass-card p-6 border-l-4 border-l-brisa-blue relative overflow-hidden">
+                            <!-- Brilho interno do card especial -->
+                            <div class="absolute inset-0 bg-gradient-to-br from-brisa-blue/10 to-transparent pointer-events-none"></div>
+                            
+                            <h3 class="font-bold text-2xl mb-5 flex items-center gap-3 text-white relative z-10">
+                                <div class="w-10 h-10 rounded-full bg-yellow-400/20 flex items-center justify-center text-yellow-400 group-hover:bg-yellow-400 group-hover:text-black transition-colors shadow-[0_0_15px_rgba(250,204,21,0.3)]">
+                                    <i class="fa-solid fa-champagne-glasses"></i>
+                                </div>
+                                Celebração com Gestores
                             </h3>
                             
-                            <ul class="text-sm space-y-2 mb-6 opacity-90 font-medium text-brisa-orange">
-                                <li><i class="fa-solid fa-star text-yellow-300 mr-2 text-xs"></i> Reconhecimento da jornada</li>
-                                <li><i class="fa-solid fa-star text-yellow-300 mr-2 text-xs"></i> Destaques e conquistas</li>
-                                <li><i class="fa-solid fa-star text-yellow-300 mr-2 text-xs"></i> Pontos focais por frente</li>
-                                <li><i class="fa-solid fa-star text-yellow-300 mr-2 text-xs"></i> Resultados e impactos</li>
+                            <ul class="text-sm space-y-3 mb-7 font-medium text-brisa-orange/90 relative z-10">
+                                <li class="stagger-item delay-1 flex items-start gap-2"><i class="fa-solid fa-star text-yellow-400 mt-0.5 text-xs drop-shadow-md"></i> Reconhecimento da jornada</li>
+                                <li class="stagger-item delay-2 flex items-start gap-2"><i class="fa-solid fa-star text-yellow-400 mt-0.5 text-xs drop-shadow-md"></i> Destaques e conquistas</li>
+                                <li class="stagger-item delay-3 flex items-start gap-2"><i class="fa-solid fa-star text-yellow-400 mt-0.5 text-xs drop-shadow-md"></i> Pontos focais por frente</li>
+                                <li class="stagger-item delay-4 flex items-start gap-2"><i class="fa-solid fa-star text-yellow-400 mt-0.5 text-xs drop-shadow-md"></i> Resultados e impactos</li>
                             </ul>
 
-                            <div class="pt-4 border-t border-white/20">
-                                <p class="text-[10px] uppercase font-bold text-brisa-orange/80 mb-2">Facilitação: <strong class="text-brisa-orange">Victor Morais</strong></p>
-                                <p class="text-[10px] uppercase font-bold text-brisa-orange/80 mb-3">Convidados Especiais</p>
+                            <div class="pt-5 border-t border-white/10 relative z-10">
+                                <div class="stagger-item delay-5 mb-5 group/avatar flex items-center gap-3 bg-black/40 pr-4 p-1.5 rounded-full border border-white/5 hover:bg-brisa-orange/10 hover:border-brisa-orange/30 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-lg w-fit">
+                                    <span class="text-[10px] uppercase font-bold text-white/50 ml-2">Facilitação</span>
+                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQHejI_Em5LuWw/profile-displayphoto-shrink_800_800/B4DZVryFe.HAAg-/0/1741270047170?e=1775692800&v=beta&t=raBiHnUvurfm8g6283XH3YXKSHrnVAq3TKQYagDSrsg" class="w-7 h-7 rounded-full object-cover group-hover/avatar:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/avatar:ring-brisa-orange">
+                                    <span class="text-sm font-bold text-brisa-orange group-hover/avatar:text-white transition-colors">Victor Morais</span>
+                                </div>
                                 
-                                <!-- Avatars Group Múltiplos -->
-                                <div class="flex flex-wrap gap-2 text-brisa-orange">
-                                    <div class="flex items-center gap-1.5 bg-black/10 pr-3 p-1 rounded-full border border-white/10">
-                                        <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/Lucas%20Lima.jpeg" class="w-6 h-6 rounded-full object-cover">
-                                        <span class="text-xs font-semibold">Lucas Lima</span>
+                                <p class="stagger-item delay-6 text-[10px] uppercase font-bold text-white/60 mb-3 tracking-wider">Convidados Especiais</p>
+                                
+                                <!-- Avatars Magnéticos e Empilhados -->
+                                <div class="stagger-item delay-6 flex flex-wrap gap-3 mt-2">
+                                    <!-- Card Avatar Interativo -->
+                                    <div class="group/guest flex items-center gap-2 bg-white/5 pr-3 p-1 rounded-full border border-white/10 hover:bg-brisa-orange/20 hover:border-brisa-orange/50 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-[0_5px_15px_rgba(255,126,5,0.2)]">
+                                        <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/Lucas%20Lima.jpeg" class="w-7 h-7 rounded-full object-cover group-hover/guest:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/guest:ring-brisa-orange">
+                                        <span class="text-xs font-semibold text-brisa-orange group-hover/guest:text-white transition-colors">Lucas L.</span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 bg-black/10 pr-3 p-1 rounded-full border border-white/10">
-                                        <img src="https://raw.githubusercontent.com/gilneilaurindo/Positiva-o-Unibrisa/main/Simone%20Caixeta.jpg" class="w-6 h-6 rounded-full object-cover">
-                                        <span class="text-xs font-semibold">Simone Caixeta</span>
+                                    <div class="group/guest flex items-center gap-2 bg-white/5 pr-3 p-1 rounded-full border border-white/10 hover:bg-brisa-orange/20 hover:border-brisa-orange/50 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-[0_5px_15px_rgba(255,126,5,0.2)]">
+                                        <img src="https://raw.githubusercontent.com/gilneilaurindo/Positiva-o-Unibrisa/main/Simone%20Caixeta.jpg" class="w-7 h-7 rounded-full object-cover group-hover/guest:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/guest:ring-brisa-orange">
+                                        <span class="text-xs font-semibold text-brisa-orange group-hover/guest:text-white transition-colors">Simone C.</span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 bg-black/10 pr-3 p-1 rounded-full border border-white/10">
-                                        <img src="https://media.licdn.com/dms/image/v2/D4D03AQF2ASTDePwLiQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1695233276678?e=1775692800&v=beta&t=QmdPUuDHesrUJyyAyD6dI9YPd760qFOWfM4FfcwMmF4" class="w-6 h-6 rounded-full object-cover">
-                                        <span class="text-xs font-semibold">Roberto Nogueira</span>
+                                    <div class="group/guest flex items-center gap-2 bg-white/5 pr-3 p-1 rounded-full border border-white/10 hover:bg-brisa-orange/20 hover:border-brisa-orange/50 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-[0_5px_15px_rgba(255,126,5,0.2)]">
+                                        <img src="https://media.licdn.com/dms/image/v2/D4D03AQF2ASTDePwLiQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1695233276678?e=1775692800&v=beta&t=QmdPUuDHesrUJyyAyD6dI9YPd760qFOWfM4FfcwMmF4" class="w-7 h-7 rounded-full object-cover group-hover/guest:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/guest:ring-brisa-orange">
+                                        <span class="text-xs font-semibold text-brisa-orange group-hover/guest:text-white transition-colors">Roberto N.</span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 bg-black/10 pr-3 p-1 rounded-full border border-white/10">
-                                        <img src="https://media.licdn.com/dms/image/v2/D4D03AQGtIcmAmTTreQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1722284494804?e=1775692800&v=beta&t=audgznr8RPEu1DR_h_lH8vbJbo1Z-E2ZS5qFpxVsY3U" class="w-6 h-6 rounded-full object-cover">
-                                        <span class="text-xs font-semibold">Jordão Estevam</span>
+                                    <div class="group/guest flex items-center gap-2 bg-white/5 pr-3 p-1 rounded-full border border-white/10 hover:bg-brisa-orange/20 hover:border-brisa-orange/50 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-[0_5px_15px_rgba(255,126,5,0.2)]">
+                                        <img src="https://media.licdn.com/dms/image/v2/D4D03AQGtIcmAmTTreQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1722284494804?e=1775692800&v=beta&t=audgznr8RPEu1DR_h_lH8vbJbo1Z-E2ZS5qFpxVsY3U" class="w-7 h-7 rounded-full object-cover group-hover/guest:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/guest:ring-brisa-orange">
+                                        <span class="text-xs font-semibold text-brisa-orange group-hover/guest:text-white transition-colors">Jordão E.</span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 bg-black/10 pr-3 p-1 rounded-full border border-white/10">
-                                        <img src="https://raw.githubusercontent.com/gilneilaurindo/Positiva-o-Unibrisa/main/Igor%20Carolino.jpeg" class="w-6 h-6 rounded-full object-cover">
-                                        <span class="text-xs font-semibold">Igor Carolino</span>
+                                    <div class="group/guest flex items-center gap-2 bg-white/5 pr-3 p-1 rounded-full border border-white/10 hover:bg-brisa-orange/20 hover:border-brisa-orange/50 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-[0_5px_15px_rgba(255,126,5,0.2)]">
+                                        <img src="https://raw.githubusercontent.com/gilneilaurindo/Positiva-o-Unibrisa/main/Igor%20Carolino.jpeg" class="w-7 h-7 rounded-full object-cover group-hover/guest:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/guest:ring-brisa-orange">
+                                        <span class="text-xs font-semibold text-brisa-orange group-hover/guest:text-white transition-colors">Igor C.</span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 bg-black/10 pr-3 p-1 rounded-full border border-white/10">
-                                        <img src="https://raw.githubusercontent.com/gilneilaurindo/Positiva-o-Unibrisa/main/Daiane%20Borges.jpg" class="w-6 h-6 rounded-full object-cover">
-                                        <span class="text-xs font-semibold">Daiane Borges</span>
+                                    <div class="group/guest flex items-center gap-2 bg-white/5 pr-3 p-1 rounded-full border border-white/10 hover:bg-brisa-orange/20 hover:border-brisa-orange/50 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-[0_5px_15px_rgba(255,126,5,0.2)]">
+                                        <img src="https://raw.githubusercontent.com/gilneilaurindo/Positiva-o-Unibrisa/main/Daiane%20Borges.jpg" class="w-7 h-7 rounded-full object-cover group-hover/guest:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/guest:ring-brisa-orange">
+                                        <span class="text-xs font-semibold text-brisa-orange group-hover/guest:text-white transition-colors">Daiane B.</span>
                                     </div>
                                 </div>
                             </div>
@@ -384,37 +475,40 @@
             </div>
 
             <!-- ITEM 4: Encerramento -->
-            <div class="relative reveal group">
+            <div class="relative reveal group mb-10">
                 <div class="flex flex-col sm:flex-row-reverse items-center justify-between">
                     <!-- Dot Mobile -->
-                    <div class="absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-orange border-2 border-white z-10 sm:hidden"></div>
+                    <div class="timeline-dot-aura absolute left-[0.45rem] top-6 w-4 h-4 rounded-full bg-brisa-orange border-2 border-[#0f0f0f] z-10 sm:hidden"></div>
                     
                     <!-- Espaço Direito Desktop -->
-                    <div class="hidden sm:block sm:w-[45%] text-left pl-8 relative">
+                    <div class="hidden sm:block sm:w-[45%] text-left pl-10 relative">
                         <!-- Dot Desktop -->
-                        <div class="absolute left-[-2.3rem] top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brisa-orange border-[3px] border-white z-10 shadow-[0_0_15px_rgba(255,126,5,0.8)] group-hover:scale-125 transition-transform"></div>
-                        <span class="inline-block bg-white text-brisa-orange font-extrabold text-sm px-4 py-1.5 rounded-full shadow-lg">12h15 - 12h30</span>
+                        <div class="timeline-dot-aura absolute left-[-2.3rem] top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-brisa-orange border-[4px] border-[#0f0f0f] z-10 shadow-[0_0_15px_rgba(255,126,5,0.8)] group-hover:scale-125 transition-transform duration-300"></div>
+                        <span class="inline-block glass-card border-none px-5 py-2 font-extrabold text-sm shadow-xl text-brisa-orange">12h15 - 12h30</span>
                     </div>
 
                     <!-- Card -->
                     <div class="w-full pl-10 sm:pl-0 sm:w-[45%] sm:text-right">
-                        <span class="sm:hidden inline-block bg-white text-brisa-orange font-extrabold text-xs px-3 py-1 rounded-full shadow-lg mb-3">12h15 - 12h30</span>
-                        <div class="glass-card p-5 border-l-4 sm:border-l-0 sm:border-r-4 border-brisa-orange hover:bg-white/20 transition-all">
-                            <h3 class="font-bold text-2xl mb-2 flex items-center sm:justify-end gap-2 text-brisa-orange">
-                                <i class="fa-solid fa-flag-checkered text-brisa-orange"></i> Encerramento
-                            </h3>
-                            <p class="text-sm opacity-90 mb-4 font-medium text-brisa-orange">Agradecimentos finais e próximos passos.</p>
-                            
-                            <div class="pt-4 border-t border-white/20 flex flex-col sm:items-end gap-3">
-                                <div class="flex items-center sm:flex-row-reverse gap-3">
-                                    <span class="text-[10px] uppercase font-bold text-brisa-orange/70">Facilitação</span>
-                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQHejI_Em5LuWw/profile-displayphoto-shrink_800_800/B4DZVryFe.HAAg-/0/1741270047170?e=1775692800&v=beta&t=raBiHnUvurfm8g6283XH3YXKSHrnVAq3TKQYagDSrsg" alt="Victor Morais" class="w-7 h-7 rounded-full object-cover">
-                                    <span class="text-sm font-bold text-brisa-orange">Victor Morais</span>
+                        <span class="sm:hidden inline-block glass-card border-none px-4 py-1.5 font-extrabold text-xs shadow-xl text-brisa-orange mb-4">12h15 - 12h30</span>
+                        <div class="glass-card p-6 border-l-4 sm:border-l-0 sm:border-r-4 border-brisa-orange">
+                            <h3 class="font-bold text-2xl mb-3 flex items-center sm:justify-end gap-3 text-white">
+                                <div class="w-10 h-10 rounded-full bg-brisa-orange/20 flex items-center justify-center text-brisa-orange group-hover:bg-brisa-orange group-hover:text-black transition-colors">
+                                    <i class="fa-solid fa-flag-checkered"></i>
                                 </div>
-                                <div class="flex items-center sm:flex-row-reverse gap-3">
-                                    <span class="text-[10px] uppercase font-bold text-brisa-orange/70">Convidado</span>
-                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQF2ASTDePwLiQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1695233276678?e=1775692800&v=beta&t=QmdPUuDHesrUJyyAyD6dI9YPd760qFOWfM4FfcwMmF4" alt="Roberto Nogueira" class="w-7 h-7 rounded-full object-cover">
-                                    <span class="text-sm font-bold text-brisa-orange">Roberto Nogueira</span>
+                                Encerramento
+                            </h3>
+                            <p class="stagger-item delay-1 text-sm opacity-90 mb-6 font-medium text-brisa-orange">Agradecimentos finais e próximos passos.</p>
+                            
+                            <div class="pt-5 border-t border-white/10 flex flex-col sm:items-end gap-3">
+                                <div class="stagger-item delay-2 group/avatar flex items-center sm:flex-row-reverse gap-3 bg-black/40 pl-4 p-1.5 rounded-full border border-white/5 hover:bg-brisa-orange/10 hover:border-brisa-orange/30 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-lg w-fit">
+                                    <span class="text-[10px] uppercase font-bold text-white/50 mr-2">Facilitação</span>
+                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQHejI_Em5LuWw/profile-displayphoto-shrink_800_800/B4DZVryFe.HAAg-/0/1741270047170?e=1775692800&v=beta&t=raBiHnUvurfm8g6283XH3YXKSHrnVAq3TKQYagDSrsg" alt="Victor Morais" class="w-8 h-8 rounded-full object-cover group-hover/avatar:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/avatar:ring-brisa-orange">
+                                    <span class="text-sm font-bold text-brisa-orange group-hover/avatar:text-white transition-colors">Victor Morais</span>
+                                </div>
+                                <div class="stagger-item delay-3 group/avatar flex items-center sm:flex-row-reverse gap-3 bg-white/5 pl-4 p-1.5 rounded-full border border-white/5 hover:bg-brisa-orange/10 hover:border-brisa-orange/30 transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-lg w-fit">
+                                    <span class="text-[10px] uppercase font-bold text-white/50 mr-2">Convidado</span>
+                                    <img src="https://media.licdn.com/dms/image/v2/D4D03AQF2ASTDePwLiQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1695233276678?e=1775692800&v=beta&t=QmdPUuDHesrUJyyAyD6dI9YPd760qFOWfM4FfcwMmF4" alt="Roberto Nogueira" class="w-8 h-8 rounded-full object-cover group-hover/avatar:scale-110 transition-transform duration-300 ring-2 ring-transparent group-hover/avatar:ring-brisa-orange">
+                                    <span class="text-sm font-bold text-brisa-orange group-hover/avatar:text-white transition-colors">Roberto Nogueira</span>
                                 </div>
                             </div>
                         </div>
@@ -425,40 +519,42 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white/10 backdrop-blur-lg border-t border-white/10 text-brisa-orange/80 py-8 text-center relative z-10 mt-12">
+    <!-- Footer Premium -->
+    <footer class="bg-black/40 backdrop-blur-xl border-t border-white/5 text-brisa-orange/80 py-10 text-center relative z-10 mt-10">
         <div class="container mx-auto px-4 flex flex-col items-center">
-            <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/icone.png" alt="Ícone Unibrisa" class="h-8 w-auto object-contain mb-3 opacity-80" style="filter: sepia(1) hue-rotate(-30deg) saturate(5);">
-            <p class="font-bold text-brisa-orange tracking-wide">Multiplicadores de Conhecimento</p>
-            <p class="text-xs mt-1 opacity-70">Celebração & Ecossistema de Desenvolvimento</p>
-            <p class="text-[10px] mt-4 opacity-50 uppercase tracking-widest">Unibrisa 2026</p>
+            <img src="https://raw.githubusercontent.com/gilneilaurindo/multiplicadoresdeconhecimentocelebra-o/main/icone.png" alt="Ícone Unibrisa" class="h-10 w-auto object-contain mb-4 opacity-90 drop-shadow-[0_0_15px_rgba(255,126,5,0.4)]" style="filter: sepia(1) hue-rotate(-30deg) saturate(5);">
+            <p class="font-extrabold text-brisa-orange tracking-widest text-lg drop-shadow-md">Multiplicadores de Conhecimento</p>
+            <p class="text-sm mt-2 text-white/70 font-medium">Celebração & Ecossistema de Desenvolvimento</p>
+            <div class="w-12 h-0.5 bg-brisa-orange/30 rounded-full mt-6 mb-4"></div>
+            <p class="text-[10px] opacity-40 uppercase tracking-[0.3em] font-bold">Unibrisa 2026</p>
         </div>
     </footer>
 
-    <!-- Scripts -->
+    <!-- Scripts de Interação e Reveal -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Splash Screen Logic
+            // Splash Screen Logic (Aguarda a barra de carregamento finalizar ~1.5s)
             const splashScreen = document.getElementById('splash-screen');
             if (splashScreen) {
                 setTimeout(() => {
+                    splashScreen.style.transform = 'translateY(-100%)'; // Desliza para cima elegantemente
                     splashScreen.style.opacity = '0';
-                    setTimeout(() => splashScreen.remove(), 700);
-                }, 1200); 
+                    setTimeout(() => splashScreen.remove(), 800); // Aguarda o CSS transition terminar
+                }, 1600); 
             }
 
             // Scroll Animation (Intersection Observer)
             const reveals = document.querySelectorAll('.reveal');
             const revealOptions = {
-                threshold: 0.1,
+                threshold: 0.15, // Espera aparecer 15% do elemento para animar
                 rootMargin: "0px 0px -50px 0px"
             };
 
             const revealOnScroll = new IntersectionObserver(function(entries, observer) {
                 entries.forEach(entry => {
                     if (!entry.isIntersecting) return;
-                    entry.target.classList.add('active');
-                    observer.unobserve(entry.target); // Anima apenas uma vez para performance mobile
+                    entry.target.classList.add('active'); // Aciona as animações em cascata
+                    observer.unobserve(entry.target); // Anima apenas uma vez para performance
                 });
             }, revealOptions);
 
